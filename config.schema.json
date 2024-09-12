@@ -6,52 +6,52 @@
     "type": "object",
     "properties": {
       "name": {
-        "title": "The name you want to give your ICS-2000",
+        "title": "ICS-2000 Name",
         "type": "string",
         "required": true,
         "default": "ICS-2000"
       },
       "email": {
-        "title": "The email of your Klik Aan Klik Uit account",
+        "title": "Klik Aan Klik Uit Account Email",
         "type": "string",
         "required": true,
         "default": ""
       },
       "password": {
-        "title": "The password of your Klik Aan Klik Uit account",
+        "title": "Klik Aan Klik Uit Account Password",
         "type": "string",
         "required": true,
         "default": ""
       },
       "entityBlacklist": {
-        "title": "A list of entity ids (ids of devices and scenes) you do not want to appear in HomeKit",
+        "title": "Entity Blacklist (Optional)",
         "type": "array",
         "required": false
       },
       "localBackupAddress": {
-        "title": "The ip address of your ICS-2000 in case it can't be automatically found in the network",
+        "title": "Local Backup IP (Optional)",
         "type": "string",
         "required": false
       },
       "hideReloadSwitch": {
-        "title": "Hide the reload switch",
+        "title": "Hide Reload Switch",
         "type": "boolean",
         "required": false,
         "default": false
       },
       "showScenes": {
-        "title": "Set to true if you wan to show scenes as devices. If false, scenes are not shown",
+        "title": "Show Scenes as Devices",
         "type": "boolean",
         "required": false,
         "default": false
       },
       "deviceConfigOverrides": {
-        "title": "An object used to override the content of DeviceConfigs.ts.",
+        "title": "Device Configuration Overrides (Optional)",
         "type": "object",
         "required": false
       },
       "discoverMessage": {
-        "title": "The HEX message you want to use to discover your local ICS-2000. If not provided, the message hardcoded in the code is used",
+        "title": "Custom Discover Message (Optional)",
         "type": "string",
         "required": false
       }
