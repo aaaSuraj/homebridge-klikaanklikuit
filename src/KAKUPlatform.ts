@@ -136,84 +136,77 @@ export default class KAKUPlatform implements DynamicPlatformPlugin {
   }
 
   private async discoverDevices() {
-    // Search hub and pull devices from the server
-    this.logger.info('Searching hub');
-    const {address: hubIp, isBackupAddress} = await this.hub.discoverHubLocal(10_000, this.discoverMessage);
-
-    if (isBackupAddress) {
-      this.searchTimeOutWarning();
-    }
-
-    this.logger.info(`Found hub: ${hubIp}`);
-    this.logger.info('Pulling devices from server');
-    const rawEntitiesData = await this.hub.getRawDevicesData(true, false);
-    const foundDevices = await this.hub.getDevices(rawEntitiesData);
-    let allEntities: Entity[] = foundDevices.filter(d => !d.disabled);
-
-    if (this.config.showScenes) {
-      const scenes = await this.hub.getScenes(rawEntitiesData);
-      allEntities = [...allEntities, ...scenes];
-    }
-
-    this.logger.info(`Found ${foundDevices.length} devices`);
-
-    for (const entity of allEntities) {
-      const entityId = entity.entityId;
-      const deviceType = entity.deviceType;
-
-      if (this.registeredDeviceIds.includes(entityId)) {
-        continue;
-      } else {
-        this.registeredDeviceIds.push(entityId);
-      }
-
-      const uuid = this.api.hap.uuid.generate(entityId.toString());
-      const existingAccessory = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
-
-      // Create the accessory
       try {
-        if (existingAccessory) {
-          existingAccessory.context.device = entity;
-          this.createDevice(existingAccessory);
-          this.logger.info(`Loaded entity from cache: name=${entity.name}, entityId=${entity.entityId}, deviceType=${deviceType}`);
-        } else {
-          const deviceName = entity.name;
-          const accessory = new this.api.platformAccessory(deviceName, uuid);
-
-          // store a copy of the device object in the `accessory.context`
-          accessory.context.device = entity;
-          accessory.context.name = deviceName;
-
-          this.createDevice(accessory);
-          this.logger.info(`Loaded new device: name=${entity.name}, entityId=${entity.entityId}, deviceType=${deviceType}`);
-          this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-        }
-      } catch (e) {
-        this.logger.error(`${e}`);
+          // Log the start of the discovery process
+          this.logger.info('Searching hub...');
+          
+          // Discover the hub locally
+          const { address: hubIp, isBackupAddress } = await this.hub.discoverHubLocal(10_000, this.discoverMessage);
+          if (isBackupAddress) this.searchTimeOutWarning();
+          
+          // Log the hub information
+          this.logger.info(`Found hub: ${hubIp}`);
+          
+          // Pull and register the devices
+          await this.pullAndRegisterDevices();
+      } catch (error) {
+          // Log any errors that occur during the discovery process
+          this.logger.error(`Failed to discover devices: ${error.message}`);
       }
-    }
+  }
+  
+  private async pullAndRegisterDevices() {
+      try {
+          // Log the start of device fetching
+          this.logger.info('Pulling devices from server...');
+          
+          // Fetch raw device data
+          const rawEntitiesData = await this.hub.getRawDevicesData(true, false);
+          const foundDevices = await this.hub.getDevices(rawEntitiesData);
+          
+          // Filter enabled devices and optionally include scenes
+          const allEntities = this.config.showScenes
+              ? [...foundDevices, ...(await this.hub.getScenes(rawEntitiesData))]
+              : foundDevices.filter(d => !d.disabled);
+  
+          // Log the number of devices found
+          this.logger.info(`Found ${allEntities.length} devices`);
+          
+          // Register each device
+          for (const entity of allEntities) {
+              if (this.registeredDeviceIds.includes(entity.entityId)) continue;
+              await this.registerDevice(entity);
+          }
+      } catch (error) {
+          // Log errors during device fetching or registration
+          this.logger.error(`Error pulling devices: ${error.message}`);
+      }
+  }
+  
+  private async registerDevice(entity: Entity) {
+      try {
+          // Generate a unique identifier for the device
+          const uuid = this.api.hap.uuid.generate(entity.entityId.toString());
+          const existingAccessory = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
+          
+          // If the accessory already exists, update it; otherwise, create a new one
+          if (existingAccessory) {
+              existingAccessory.context.device = entity;
+              this.createDevice(existingAccessory);
+              this.logger.info(`Loaded entity from cache: name=${entity.name}, entityId=${entity.entityId}, deviceType=${entity.deviceType}`);
+          } else {
+              const accessory = new this.api.platformAccessory(entity.name, uuid);
+              accessory.context.device = entity;
+              this.createDevice(accessory);
+              this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+              this.logger.info(`Loaded new device: name=${entity.name}, entityId=${entity.entityId}, deviceType=${entity.deviceType}`);
+          }
+      } catch (error) {
+          // Log any errors during the registration process
+          this.logger.error(`Error registering device: ${error.message}`);
+      }
   }
 
-  /**
-   * Create a reload switch, so you can rerun the setup without touching homebridge
-   * @private
-   */
-  private createReloadSwitch() {
-    const uuid = this.api.hap.uuid.generate(RELOAD_SWITCH_NAME);
-    const existingAccessory = this.cachedAccessories.find(accessory => accessory.UUID === uuid);
 
-    if (existingAccessory) {
-      new ReloadSwitch(this, existingAccessory);
-    } else {
-      const reloadSwitchAccessory = new this.api.platformAccessory(RELOAD_SWITCH_NAME, uuid);
-      new ReloadSwitch(this, reloadSwitchAccessory);
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [reloadSwitchAccessory]);
-    }
-
-    this.logger.info('Created reload switch');
-  }
-
-  private searchTimeOutWarning(): void {
-    this.logger.warn('Searching hub timed out! Using backup address for communication');
-  }
+  
 }
