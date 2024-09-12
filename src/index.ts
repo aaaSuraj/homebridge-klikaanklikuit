@@ -1,11 +1,8 @@
-import {API} from 'homebridge';
-import {PLATFORM_NAME} from './settings';
-import KAKUPlatform from './KAKUPlatform';
-
-/**
- * This method registers the platform with Homebridge
- */
 export = (api: API) => {
-  api.registerPlatform(PLATFORM_NAME, KAKUPlatform);
+  try {
+    api.registerPlatform(PLATFORM_NAME, KAKUPlatform);
+    console.log('Platform registered successfully');
+  } catch (error) {
+    console.error('Error registering platform:', error);
+  }
 };
-
