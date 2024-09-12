@@ -1,25 +1,26 @@
 {
-  "displayName": "Homebridge KAKU ICS-2000",
-  "name": "homebridge-kaku-ics2000",
-  "version": "1.3.5",
+  "displayName": "Homebridge KlikAanKlikUit",
+  "name": "homebridge-klikaanklikuit",
+  "version": "2.0.0",
   "description": "A plugin that adds support for Klik Aan Klik Uit accessories connected to the ICS-2000 to HomeKit",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/youridijk/homebridge-kaku-ics2000.git"
+    "url": "git://github.com/aaaSuraj/homebridge-klikaanklikuit.git"
   },
   "bugs": {
-    "url": "https://github.com/youridijk/homebridge-kaku-ics2000/issues"
+    "url": "https://github.com/aaaSuraj/homebridge-klikaanklikuit/issues"
   },
   "engines": {
-    "node": ">=14.18.1",
-    "homebridge": ">=1.3.5"
+    "node": ">=16.13.0",
+    "homebridge": ">=2.0.0"
   },
   "main": "dist/index.js",
   "scripts": {
     "lint": "npx eslint src/**.ts --max-warnings=0",
     "watch": "npm run build && npm link && nodemon",
     "build": "rimraf ./dist && tsc",
+    "clean": "rimraf ./dist",
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
@@ -33,7 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.51.0",
-    "homebridge": "^1.3.5",
+    "homebridge": "^2.0.0",
     "nodemon": "^3.0.3",
     "rimraf": "^3.0.2",
     "typescript": "^4.4.4"
@@ -41,5 +42,10 @@
   "dependencies": {
     "ics-2000": "^1.2.1",
     "node-schedule": "^2.1.0"
-  }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }
