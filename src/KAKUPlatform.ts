@@ -97,13 +97,13 @@ export default class KAKUPlatform implements DynamicPlatformPlugin {
   }
 
   public async setup() {
-    this.logger.info('Setup called!');
-    await this.hub.login()
-      .catch(error => this.logger.error(`Error logging in: ${error}`));
-    await this.discoverDevices()
-      .catch((error) => this.logger.error(`Error discovering devices: ${error}`));
-    await this.hub.getAllDeviceStatuses()
-      .catch((error) => this.logger.error(`Error fetching device statuses: ${error}`));
+      try {
+          this.logger.info('Setup called!');
+          await this.hub.login();
+          await Promise.all([this.discoverDevices(), this.hub.getAllDeviceStatuses()]);
+      } catch (error) {
+          this.logger.error(`Setup failed: ${error.message}`);
+      }
   }
 
   configureAccessory(accessory: PlatformAccessory): void {
