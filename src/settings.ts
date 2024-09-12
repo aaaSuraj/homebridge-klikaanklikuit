@@ -6,7 +6,7 @@ export const PLATFORM_NAME = 'KAKU-ICS2000';
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export const PLUGIN_NAME = 'homebridge-kaku-ics2000';
+export const PLUGIN_NAME = 'homebridge-klikaanklikuit';
 
 
 export const RELOAD_SWITCH_NAME = 'Reload Switch';
